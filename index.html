@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha人物识别系统</title>
+    <style>
+        /* 添加渐变背景和全局样式 */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+        }
+
+        /* 主容器样式 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            margin-top: 20px;
+        }
+
+        /* 标题样式 */
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+        }
+
+        /* 表单组样式 */
+        .form-group {
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* 输入框样式 */
+        input[type="text"] {
+            width: 200px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* 修改文件输入框样式 */
+        .custom-file-input {
+            position: relative;
+            display: inline-block;
+        }
+
+        .custom-file-input input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        /* 修改按钮样式 */
+        .custom-file-button {
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            background: linear-gradient(45deg, #00ff87, #60efff);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .custom-file-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 135, 0.4);
+        }
+
+        /* 预览图片样式 */
+        #preview {
+            max-width: 300px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        #preview:hover {
+            transform: scale(1.02);
+        }
+
+        /* 加载状态样式 */
+        #loading {
+            color: #fff;
+            font-size: 0.9em;
+            margin-top: 10px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 结果显示样式 */
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 高科技装饰元素 */
+        .tech-border {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #00ff87, transparent, #60efff) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderAnimation 3s linear infinite;
+        }
+
+        @keyframes borderAnimation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 标签样式 */
+        label {
+            display: inline-block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container tech-border">
+        <h1>Alpha人物识别系统</h1>
+        <div class="form-group">
+            <label for="name">姓名：</label>
+            <input type="text" id="name" value="阿飞" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <div class="custom-file-input">
+                <input type="file" id="image" accept="image/*" style="width: 120px;">
+                <div class="custom-file-button">选择照片</div>
+            </div>
+            <div id="loading">正在加载模型...</div>
+            <img id="preview" style="display: none;">
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <!-- 保持原有的脚本部分不变 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js"></script>
+    <script>
+        let isModelLoaded = false;
+        let modelLoadingStatus = '未开始';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                modelLoadingStatus = '正在加载模型...';
+                updateLoadingStatus();
+                
+                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
+                
+                await Promise.all([
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL)
+                ]);
+                
+                isModelLoaded = true;
+                modelLoadingStatus = '模型加载完成！';
+                updateLoadingStatus();
+                console.log('模型加载完成');
+                
+                initializeImageUpload();
+            } catch (error) {
+                console.error('初始化失败:', error);
+                document.getElementById('loading').innerHTML = `
+                    模型加载失败，请：<br>
+                    1. 检查网络连接<br>
+                    2. 使用现代浏览器（Chrome/Firefox/Edge）<br>
+                    3. <a href="javascript:location.reload()">点击这里刷新页面</a>
+                `;
+            }
+        });
+
+        function updateLoadingStatus() {
+            const loading = document.getElementById('loading');
+            loading.textContent = modelLoadingStatus;
+            loading.style.display = 'block';
+        }
+
+        function initializeImageUpload() {
+            document.getElementById('image').addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const preview = document.getElementById('preview');
+                    const loading = document.getElementById('loading');
+                    
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                        loading.style.display = 'block';
+                        loading.textContent = '正在分析图片...';
+                        
+                        preview.onload = async () => {
+                            await analyzeImage(preview);
+                            loading.style.display = 'none';
+                        };
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        async function analyzeImage(imgElement) {
+            const resultDiv = document.getElementById('result');
+            const name = document.getElementById('name').value || '阿飞';
+
+            try {
+                const detections = await faceapi.detectAllFaces(imgElement)
+                    .withFaceLandmarks()
+                    .withAgeAndGender();
+
+                if (!detections || detections.length === 0) {
+                    resultDiv.innerHTML = `
+                        <p>未检测到人脸，请确保：</p>
+                        <ul>
+                            <li>图片中包含清晰的人脸</li>
+                            <li>人脸朝向正面</li>
+                            <li>光线充足</li>
+                        </ul>`;
+                    return;
+                }
+
+                const face = detections[0];
+                const gender = face.gender;
+                const genderConfidence = face.genderProbability;
+                const age = Math.round(face.age);
+
+                if (gender === 'male' && genderConfidence > 0.6) {
+                    resultDiv.innerHTML = `
+                        <p>${name}是一位${age}岁的先生。</p>
+                        <p><small>(性别置信度: ${(genderConfidence * 100).toFixed(1)}%)</small></p>`;
+                } else if (gender === 'female' && genderConfidence > 0.6) {
+                    resultDiv.innerHTML = `
+                        <p>${name}是一位${age}岁的女士。</p>
+                        <p><small>(性别置信度: ${(genderConfidence * 100).toFixed(1)}%)</small></p>`;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p>无法确定${name}的性别。</p>
+                        <p><small>(置信度过低: ${(genderConfidence * 100).toFixed(1)}%)</small></p>`;
+                }
+            } catch (error) {
+                console.error('分析错误:', error);
+                resultDiv.innerHTML = `
+                    <p>图片分析出现错误：</p>
+                    <p><small>${error.message}</small></p>
+                    <p>请刷新页面重试</p>`;
+            }
+        }
+    </script>
+</body>
+</html> 

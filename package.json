@@ -1,0 +1,20 @@
+{
+  "name": "alpha-face-recognition",
+  "version": "1.0.0",
+  "description": "Alpha人物识别系统",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "build": "webpack --config webpack.config.js"
+  },
+  "keywords": ["face-recognition", "AI", "web-app"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@tensorflow/tfjs": "^3.11.0",
+    "@vladmandic/face-api": "^1.7.12"
+  },
+  "devDependencies": {
+    "serve": "^14.0.0"
+  }
+} 
